@@ -1,0 +1,108 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "typescript", "unicorn", "oxc", "import", "node", "promise", "vitest"],
+  "jsPlugins": ["eslint-plugin-security", "eslint-plugin-no-unsanitized"],
+  "options": {
+    "typeAware": true,
+    "denyWarnings": true,
+    "reportUnusedDisableDirectives": "error"
+  },
+  "env": { "es2024": true },
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "pedantic": "error",
+    "perf": "error",
+    "restriction": "error"
+  },
+  "ignorePatterns": ["dist/**", "release/**", "coverage/**", "e2e/docs-fixture/**"],
+  "rules": {
+    // Type escape hatches. Any exception needs an entry in exceptions.json.
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/ban-ts-comment": [
+      "error",
+      { "ts-expect-error": true, "ts-ignore": true, "ts-nocheck": true, "ts-check": false }
+    ],
+    "typescript/consistent-type-assertions": ["error", { "assertionStyle": "never" }],
+    "typescript/no-unsafe-type-assertion": "error",
+    "typescript/strict-boolean-expressions": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+
+    // Curated style rules.
+    "typescript/consistent-type-imports": "error",
+    "unicorn/filename-case": ["error", { "case": "kebabCase" }],
+    "eslint/curly": ["error", "all"],
+    "eslint/eqeqeq": "error",
+    "import/extensions": ["error", "always", { "ignorePackages": true }],
+
+    // Restriction rules that contradict how this codebase is written: modern syntax
+    // is the target, not something to avoid.
+    "oxc/no-async-await": "off",
+    "oxc/no-optional-chaining": "off",
+    "oxc/no-rest-spread-properties": "off",
+    "eslint/no-undefined": "off",
+    "eslint/no-plusplus": "off",
+    "import/no-relative-parent-imports": "off",
+    "typescript/explicit-function-return-type": "off",
+    "typescript/explicit-member-accessibility": "off",
+    // switch-exhaustiveness-check replaces this, and a default branch would hide
+    // a missing case from it.
+    "eslint/default-case": "off",
+    // tsc reports temporal-dead-zone use; hoisted function declarations are fine.
+    "eslint/no-use-before-define": "off",
+    // Flags every DOM node, Electron object and Node stream parameter; deep
+    // readonly isn't expressible for those types.
+    "typescript/prefer-readonly-parameter-types": "off",
+    // vitest.config.ts sets testTimeout globally.
+    "vitest/require-test-timeout": "off",
+
+    // Security (eslint-plugin-security, loaded as a JS plugin).
+    "security/detect-unsafe-regex": "error",
+    "security/detect-non-literal-regexp": "error",
+    "security/detect-non-literal-require": "error",
+    "security/detect-eval-with-expression": "error",
+    "security/detect-pseudoRandomBytes": "error",
+    "security/detect-possible-timing-attacks": "error",
+    "security/detect-no-csrf-before-method-override": "error",
+    "security/detect-buffer-noassert": "error",
+    "security/detect-child-process": "error",
+    "security/detect-disable-mustache-escape": "error",
+    "security/detect-new-buffer": "error",
+    "security/detect-bidi-characters": "error",
+    "security/detect-invisible-characters": "error",
+    // Approved off: fires on every bracket access. noUncheckedIndexedAccess and
+    // zod-validated data cover the risk this rule guesses at.
+    "security/detect-object-injection": "off",
+    // Approved off: fires on every fs call with a variable path. Paths reach fs
+    // only through open-target/contain, which the boundary tests cover.
+    "security/detect-non-literal-fs-filename": "off",
+
+    // DOM injection sinks (eslint-plugin-no-unsanitized).
+    "no-unsanitized/method": "error",
+    "no-unsanitized/property": "error"
+  },
+  "overrides": [
+    {
+      "files": ["*.config.ts", "e2e/playwright.config.ts"],
+      "rules": { "import/no-default-export": "off" }
+    },
+    {
+      "files": ["scripts/**/*.ts"],
+      // CLI entry points run directly under node and are never require()d.
+      "rules": {
+        "eslint/no-console": "off",
+        "unicorn/no-process-exit": "off",
+        "node/no-top-level-await": "off"
+      }
+    },
+    {
+      "files": ["**/*.test.ts", "e2e/**/*.ts"],
+      "rules": {
+        "eslint/max-lines-per-function": "off",
+        "eslint/max-lines": "off",
+        "node/no-process-env": "off"
+      }
+    }
+  ]
+}

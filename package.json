@@ -33,8 +33,8 @@
     "dist": "npm run build && electron-builder --publish never"
   },
   "dependencies": {
-    "mdts": "0.21.0",
-    "zod": "4.6.5"
+    "mdts": "0.21.1",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.3",
